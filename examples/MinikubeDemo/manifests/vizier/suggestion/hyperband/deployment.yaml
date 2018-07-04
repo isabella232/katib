@@ -1,23 +1,23 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: vizier-suggestion-random
+  name: vizier-suggestion-hayperband
   namespace: katib
   labels:
     app: vizier
-    component: suggestion-random
+    component: suggestion-hayperband
 spec:
   replicas: 1
   template:
     metadata:
-      name: vizier-suggestion-random
+      name: vizier-suggestion-hayperband
       labels:
         app: vizier
-        component: suggestion-random
+        component: suggestion-hayperband
     spec:
       containers:
-      - name: vizier-suggestion-random
-        image: katib/suggestion-random
+      - name: vizier-suggestion-hayperband
+        image: katib/suggestion-hayperband
         ports:
         - name: api
           containerPort: 6789
