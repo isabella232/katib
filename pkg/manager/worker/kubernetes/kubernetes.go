@@ -84,6 +84,21 @@ func (d *KubernetesWorkerInterface) genJobManifest(wid string, conf *api.WorkerC
 			},
 		},
 	}
+
+	// Katib labels
+	labels := map[string] string {
+		"katib-version": "alpha-0.2.0",
+		"worker-id":     wid,
+	}
+
+	// If there are custom labels, add it to the list of labels
+	if len(conf.Labels) != 0 {
+		for k, v := range conf.Labels {
+			labels[k] = v
+		}
+	}
+	template.Spec.Template.ObjectMeta.Labels = labels;
+
 	if len(conf.Annotations) != 0 {
 		template.Spec.Template.ObjectMeta.Annotations = conf.Annotations;
 	}
