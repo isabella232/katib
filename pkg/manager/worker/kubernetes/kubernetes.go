@@ -97,7 +97,8 @@ func (d *KubernetesWorkerInterface) genJobManifest(wid string, conf *api.WorkerC
 			labels[k] = v
 		}
 	}
-	template.Spec.Template.ObjectMeta.Labels = labels;
+	template.ObjectMeta.Labels = labels
+	template.Spec.Template.ObjectMeta.Labels = labels
 
 	if len(conf.Annotations) != 0 {
 		template.Spec.Template.ObjectMeta.Annotations = conf.Annotations;
