@@ -120,7 +120,7 @@ func (s *server) RunTrial(ctx context.Context, in *pb.RunTrialRequest) (*pb.RunT
 }
 
 func (s *server) StopWorkers(ctx context.Context, in *pb.StopWorkersRequest) (*pb.StopWorkersReply, error) {
-	err := s.wIF.StopWorkers(in.StudyId, in.WorkerIds, in.IsComplete)
+	err := s.wIF.StopWorkers(in.StudyId, in.WorkerIds, in.IsComplete, in.Namespace)
 	return &pb.StopWorkersReply{}, err
 }
 
@@ -130,7 +130,7 @@ func (s *server) GetWorkers(ctx context.Context, in *pb.GetWorkersRequest) (*pb.
 	if in.StudyId == "" {
 		return &pb.GetWorkersReply{Workers: ws}, errors.New("StudyId should be set")
 	}
-	err = s.wIF.UpdateWorkerStatus(in.StudyId)
+	err = s.wIF.UpdateWorkerStatus(in.StudyId, in.Namespace)
 	if err != nil {
 		return &pb.GetWorkersReply{Workers: ws}, err
 	}
@@ -171,7 +171,8 @@ func (s *server) GetMetrics(ctx context.Context, in *pb.GetMetricsRequest) (*pb.
 		}
 		mNames = sc.Metrics
 	}
-	err := s.wIF.UpdateWorkerStatus(in.StudyId)
+
+	err := s.wIF.UpdateWorkerStatus(in.StudyId, in.Namespace)
 	if err != nil {
 		return &pb.GetMetricsReply{}, err
 	}
@@ -251,7 +252,7 @@ func (s *server) GetEarlyStoppingParameterList(ctx context.Context, in *pb.GetEa
 }
 
 func (s *server) StopStudy(ctx context.Context, in *pb.StopStudyRequest) (*pb.StopStudyReply, error) {
-	err := s.wIF.CleanWorkers(in.StudyId)
+	err := s.wIF.CleanWorkers(in.StudyId, in.Namespace)
 	return &pb.StopStudyReply{}, err
 }
 
