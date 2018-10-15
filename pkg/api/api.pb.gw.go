@@ -52,6 +52,17 @@ func request_Manager_StopStudy_0(ctx context.Context, marshaler runtime.Marshale
 		_   = err
 	)
 
+	val, ok = pathParams["namespace"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "namespace")
+	}
+
+	protoReq.Namespace, err = runtime.String(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "namespace", err)
+	}
+
 	val, ok = pathParams["study_id"]
 	if !ok {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "study_id")
@@ -1112,7 +1123,7 @@ func RegisterManagerHandler(ctx context.Context, mux *runtime.ServeMux, conn *gr
 var (
 	pattern_Manager_CreateStudy_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "Manager", "CreateStudy"}, ""))
 
-	pattern_Manager_StopStudy_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "Manager", "StopStudy", "study_id"}, ""))
+	pattern_Manager_StopStudy_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "Manager", "StopStudy", "namespace", "study_id"}, ""))
 
 	pattern_Manager_GetStudy_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "Manager", "GetStudy", "study_id"}, ""))
 
