@@ -265,6 +265,7 @@ message WorkerConfig {
     string pull_secret = 8;
     map<string, string> annotations = 9;
     repeated Toleration tolerations = 10;
+    map<string, string> labels = 11;
 }
 
 message Worker {
