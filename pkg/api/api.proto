@@ -16,7 +16,7 @@ service Manager {
     };
     rpc StopStudy(StopStudyRequest) returns (StopStudyReply){
         option (google.api.http) = {
-            get: "/api/Manager/StopStudy/{study_id}"
+            get: "/api/Manager/StopStudy/{namespace}/{study_id}"
         };
     };
     rpc GetStudy(GetStudyRequest) returns (GetStudyReply){
@@ -266,6 +266,7 @@ message WorkerConfig {
     map<string, string> annotations = 9;
     repeated Toleration tolerations = 10;
     map<string, string> labels = 11;
+    string namespace = 12;
 }
 
 message Worker {
@@ -303,6 +304,7 @@ message CreateStudyReply {
 
 message StopStudyRequest {
     string study_id = 1;
+    string namespace = 2;
 }
 
 message StopStudyReply {
@@ -354,6 +356,7 @@ message StopWorkersRequest {
     string study_id = 1;
     repeated string worker_ids = 2;
     bool is_complete = 3;
+    string namespace = 4;
 }
 
 message StopWorkersReply {
@@ -363,6 +366,7 @@ message GetWorkersRequest {
     string study_id = 1;
     string trial_id = 2;
     string worker_id = 3;
+    string namespace = 4;
 }
 
 message GetWorkersReply {
@@ -395,6 +399,7 @@ message GetMetricsRequest {
     string study_id = 1;
     repeated string worker_ids = 2;
     repeated string metrics_names = 3;
+    string namespace = 4;
 }
 
 message GetMetricsReply {
