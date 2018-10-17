@@ -74,7 +74,7 @@ func (d *KubernetesWorkerInterface) genJobManifest(wid string, conf *api.WorkerC
 							ImagePullPolicy: apiv1.PullAlways,
 						},
 					},
-					RestartPolicy: apiv1.RestartPolicyOnFailure,
+					RestartPolicy: apiv1.RestartPolicyNever,
 					ImagePullSecrets: []apiv1.LocalObjectReference{
 						apiv1.LocalObjectReference{
 							Name: conf.PullSecret,
