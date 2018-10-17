@@ -8,6 +8,7 @@ type Interface interface {
 	SpawnWorker(wid string, workerConf *api.WorkerConfig) error
 	StoreWorkerLog(wID string) error
 	IsWorkerComplete(wID string) (bool, error)
+	IsWorkerFailed(wID string) (bool, error)
 	UpdateWorkerStatus(studyId string) error
 	StopWorkers(studyId string, wIDs []string, iscomplete bool) error
 	CleanWorkers(studyId string) error
