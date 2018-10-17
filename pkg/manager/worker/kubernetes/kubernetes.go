@@ -18,6 +18,10 @@ import (
 	"github.com/kubeflow/katib/pkg/db"
 )
 
+const (
+	kubeNamespace = "katib"
+)
+
 type KubernetesWorkerInterface struct {
 	clientset *kubernetes.Clientset
 	db        db.VizierDBInterface
@@ -160,8 +164,8 @@ func (d *KubernetesWorkerInterface) genJobManifest(wid string, conf *api.WorkerC
 	return template, nil
 }
 
-func (d *KubernetesWorkerInterface) StoreWorkerLog(wID string, namespace string) error {
-	pl, _ := d.clientset.CoreV1().Pods(namespace).List(metav1.ListOptions{LabelSelector: "job-name=" + wID})
+func (d *KubernetesWorkerInterface) StoreWorkerLog(wID string) error {
+	pl, _ := d.clientset.CoreV1().Pods(kubeNamespace).List(metav1.ListOptions{LabelSelector: "job-name=" + wID})
 	if len(pl.Items) == 0 {
 		return errors.New(fmt.Sprintf("No Pods are found in Job %v", wID))
 	}
@@ -175,7 +179,7 @@ func (d *KubernetesWorkerInterface) StoreWorkerLog(wID string, namespace string)
 		logopt.SinceTime = &metav1.Time{Time: *mt}
 	}
 
-	logs, err := d.clientset.CoreV1().Pods(namespace).GetLogs(pl.Items[0].ObjectMeta.Name, &logopt).Do().Raw()
+	logs, err := d.clientset.CoreV1().Pods(kubeNamespace).GetLogs(pl.Items[0].ObjectMeta.Name, &logopt).Do().Raw()
 	if err != nil {
 		return err
 	}
@@ -186,8 +190,8 @@ func (d *KubernetesWorkerInterface) StoreWorkerLog(wID string, namespace string)
 	return err
 }
 
-func (d *KubernetesWorkerInterface) IsWorkerComplete(wID string, namespace string) (bool, error) {
-	jcl := d.clientset.BatchV1().Jobs(namespace)
+func (d *KubernetesWorkerInterface) IsWorkerComplete(wID string) (bool, error) {
+	jcl := d.clientset.BatchV1().Jobs(kubeNamespace)
 	ji, err := jcl.Get(wID, metav1.GetOptions{})
 	if err != nil {
 		return false, err
@@ -195,7 +199,7 @@ func (d *KubernetesWorkerInterface) IsWorkerComplete(wID string, namespace strin
 	if ji.Status.Succeeded == 0 {
 		return false, nil
 	}
-	pl, _ := d.clientset.CoreV1().Pods(namespace).List(metav1.ListOptions{LabelSelector: "job-name=" + wID})
+	pl, _ := d.clientset.CoreV1().Pods(kubeNamespace).List(metav1.ListOptions{LabelSelector: "job-name=" + wID})
 	if len(pl.Items) == 0 {
 		return false, errors.New(fmt.Sprintf("No Pods are found in Job %v", wID))
 	}
@@ -205,14 +209,14 @@ func (d *KubernetesWorkerInterface) IsWorkerComplete(wID string, namespace strin
 	return false, nil
 }
 
-func (d *KubernetesWorkerInterface) UpdateWorkerStatus(studyId string, namespace string) error {
+func (d *KubernetesWorkerInterface) UpdateWorkerStatus(studyId string) error {
 	ws, err := d.db.GetWorkerList(studyId, "")
 	if err != nil {
 		return err
 	}
 	for _, w := range ws {
 		if w.Status == api.State_PENDING {
-			err = d.StoreWorkerLog(w.WorkerId, namespace)
+			err = d.StoreWorkerLog(w.WorkerId)
 			if err == nil {
 				err = d.db.UpdateWorker(w.WorkerId, api.State_RUNNING)
 				if err != nil {
@@ -221,11 +225,11 @@ func (d *KubernetesWorkerInterface) UpdateWorkerStatus(studyId string, namespace
 				}
 			}
 		} else if w.Status == api.State_RUNNING {
-			c, err := d.IsWorkerComplete(w.WorkerId, namespace)
+			c, err := d.IsWorkerComplete(w.WorkerId)
 			if err != nil {
 				return err
 			}
-			err = d.StoreWorkerLog(w.WorkerId, namespace)
+			err = d.StoreWorkerLog(w.WorkerId)
 			if err != nil {
 				return err
 			}
@@ -234,8 +238,8 @@ func (d *KubernetesWorkerInterface) UpdateWorkerStatus(studyId string, namespace
 				if err != nil {
 					return err
 				}
-				jcl := d.clientset.BatchV1().Jobs(namespace)
-				pcl := d.clientset.CoreV1().Pods(namespace)
+				jcl := d.clientset.BatchV1().Jobs(kubeNamespace)
+				pcl := d.clientset.CoreV1().Pods(kubeNamespace)
 				jcl.Delete(w.WorkerId, &metav1.DeleteOptions{})
 				pl, _ := pcl.List(metav1.ListOptions{LabelSelector: "job-name=" + w.WorkerId})
 				pcl.Delete(pl.Items[0].ObjectMeta.Name, &metav1.DeleteOptions{})
@@ -250,7 +254,7 @@ func (d *KubernetesWorkerInterface) SpawnWorker(wid string, workerConf *api.Work
 	if err != nil {
 		return err
 	}
-	jcl := d.clientset.BatchV1().Jobs(workerConf.Namespace)
+	jcl := d.clientset.BatchV1().Jobs(kubeNamespace)
 	result, err := jcl.Create(job)
 	if err != nil {
 		return err
@@ -259,9 +263,9 @@ func (d *KubernetesWorkerInterface) SpawnWorker(wid string, workerConf *api.Work
 	return nil
 }
 
-func (d *KubernetesWorkerInterface) CleanWorkers(studyId string, namespace string) error {
-	jcl := d.clientset.BatchV1().Jobs(namespace)
-	pcl := d.clientset.CoreV1().Pods(namespace)
+func (d *KubernetesWorkerInterface) CleanWorkers(studyId string) error {
+	jcl := d.clientset.BatchV1().Jobs(kubeNamespace)
+	pcl := d.clientset.CoreV1().Pods(kubeNamespace)
 	ws, err := d.db.GetWorkerList(studyId, "")
 	if err != nil {
 		return err
@@ -280,13 +284,13 @@ func (d *KubernetesWorkerInterface) CleanWorkers(studyId string, namespace strin
 	return nil
 }
 
-func (d *KubernetesWorkerInterface) StopWorkers(studyId string, wIDs []string, iscomplete bool, namespace string) error {
+func (d *KubernetesWorkerInterface) StopWorkers(studyId string, wIDs []string, iscomplete bool) error {
 	ws, err := d.db.GetWorkerList(studyId, "")
 	if err != nil {
 		return err
 	}
-	jcl := d.clientset.BatchV1().Jobs(namespace)
-	pcl := d.clientset.CoreV1().Pods(namespace)
+	jcl := d.clientset.BatchV1().Jobs(kubeNamespace)
+	pcl := d.clientset.CoreV1().Pods(kubeNamespace)
 	for _, w := range ws {
 		for _, wid := range wIDs {
 			if w.Status == api.State_RUNNING && w.WorkerId == wid {

@@ -374,12 +374,6 @@
             "in": "query",
             "required": false,
             "type": "string"
-          },
-          {
-            "name": "namespace",
-            "in": "query",
-            "required": false,
-            "type": "string"
           }
         ],
         "tags": [
@@ -517,7 +511,7 @@
         ]
       }
     },
-    "/api/Manager/StopStudy/{namespace}/{study_id}": {
+    "/api/Manager/StopStudy/{study_id}": {
       "get": {
         "operationId": "StopStudy",
         "responses": {
@@ -529,12 +523,6 @@
           }
         },
         "parameters": [
-          {
-            "name": "namespace",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
           {
             "name": "study_id",
             "in": "path",
@@ -737,9 +725,6 @@
           "items": {
             "type": "string"
           }
-        },
-        "namespace": {
-          "type": "string"
         }
       }
     },
@@ -1167,9 +1152,6 @@
         "is_complete": {
           "type": "boolean",
           "format": "boolean"
-        },
-        "namespace": {
-          "type": "string"
         }
       }
     },
@@ -1392,9 +1374,6 @@
           "additionalProperties": {
             "type": "string"
           }
-        },
-        "namespace": {
-          "type": "string"
         }
       }
     }
