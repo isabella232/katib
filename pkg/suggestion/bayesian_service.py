@@ -29,7 +29,7 @@ class BayesianService(api_pb2_grpc.SuggestionServicer):
         # }
         self.service_params = {}
 
-    def GenerateTrials(self, request, context):
+    def GetSuggestions(self, request, context):
         if request.study_id not in self.trial_hist.keys():
             self.trial_hist[request.study_id] = []
         X_train = []
@@ -102,9 +102,8 @@ class BayesianService(api_pb2_grpc.SuggestionServicer):
         )
         # print(self.trial_hist)
 
-        return api_pb2.GenerateTrialsReply(
-            trials=[trial],
-            completed=False,
+        return api_pb2.GetSuggestionsReply(
+            trials=[trial]
         )
 
     def SetSuggestionParameters(self, request, context):
