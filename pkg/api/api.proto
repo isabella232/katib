@@ -377,7 +377,7 @@ message GetSuggestionsRequest {
     repeated string log_worker_ids = 4;
     string param_id = 5;
     repeated Trial completed_trials = 6;
-    StudyConfig configs 7;
+    StudyConfig configs = 7;
 }
 
 message GetSuggestionsReply {
