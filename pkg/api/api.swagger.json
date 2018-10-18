@@ -848,6 +848,15 @@
         },
         "param_id": {
           "type": "string"
+        },
+        "completed_trials": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiTrial"
+          }
+        },
+        "configs": {
+          "$ref": "#/definitions/apiStudyConfig"
         }
       }
     },
