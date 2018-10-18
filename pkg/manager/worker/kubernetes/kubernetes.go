@@ -209,6 +209,17 @@ func (d *KubernetesWorkerInterface) IsWorkerComplete(wID string) (bool, error) {
 	return false, nil
 }
 
+func (d *KubernetesWorkerInterface) IsWorkerFailed(wID string) (bool, error) {
+	pl, _ := d.clientset.CoreV1().Pods(kubeNamespace).List(metav1.ListOptions{LabelSelector: "job-name=" + wID})
+	if len(pl.Items) == 0 {
+		return false, errors.New(fmt.Sprintf("No Pods are found in Job %v", wID))
+	}
+	if pl.Items[0].Status.Phase == "Failed" {
+		return true, nil
+	}
+	return false, nil
+}
+
 func (d *KubernetesWorkerInterface) UpdateWorkerStatus(studyId string) error {
 	ws, err := d.db.GetWorkerList(studyId, "")
 	if err != nil {
@@ -243,6 +254,17 @@ func (d *KubernetesWorkerInterface) UpdateWorkerStatus(studyId string) error {
 				jcl.Delete(w.WorkerId, &metav1.DeleteOptions{})
 				pl, _ := pcl.List(metav1.ListOptions{LabelSelector: "job-name=" + w.WorkerId})
 				pcl.Delete(pl.Items[0].ObjectMeta.Name, &metav1.DeleteOptions{})
+			}
+
+			f, err := d.IsWorkerFailed(w.WorkerId)
+			if err != nil {
+				return err
+			}
+			if f {
+				err := d.db.UpdateWorker(w.WorkerId, api.State_ERROR)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
