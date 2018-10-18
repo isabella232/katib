@@ -1374,6 +1374,9 @@
           "additionalProperties": {
             "type": "string"
           }
+        },
+        "container_suffix": {
+          "type": "string"
         }
       }
     }

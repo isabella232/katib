@@ -45,6 +45,12 @@ func NewKubernetesWorkerInterface(db db.VizierDBInterface) (*KubernetesWorkerInt
 // Generate Job Template
 func (d *KubernetesWorkerInterface) genJobManifest(wid string, conf *api.WorkerConfig) (*batchv1.Job, error) {
 	//construct entry point nad parameter
+
+	// Construct the container name for logging purposes
+	containerName := wid
+	if conf.ContainerSuffix != "" {
+		containerName = wid + conf.ContainerSuffix
+	}
 	template := &batchv1.Job{
 		TypeMeta: metav1.TypeMeta{
 			Kind: "Job",
@@ -69,7 +75,7 @@ func (d *KubernetesWorkerInterface) genJobManifest(wid string, conf *api.WorkerC
 					Containers: []apiv1.Container{
 						{
 							Image:           conf.Image,
-							Name:            wid,
+							Name:            containerName,
 							Command:         conf.Command,
 							ImagePullPolicy: apiv1.PullAlways,
 						},
