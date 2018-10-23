@@ -1377,6 +1377,12 @@
         },
         "container_suffix": {
           "type": "string"
+        },
+        "env_vars": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     }
