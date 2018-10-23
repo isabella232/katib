@@ -51,6 +51,18 @@ func (d *KubernetesWorkerInterface) genJobManifest(wid string, conf *api.WorkerC
 	if conf.ContainerSuffix != "" {
 		containerName = wid + conf.ContainerSuffix
 	}
+
+	// Construct the env vars for the container
+	envVars := []apiv1.EnvVar{};
+	if len(conf.EnvVars) > 0 {
+		for k, v := range conf.EnvVars {
+			envVars = append(envVars, apiv1.EnvVar{
+				Name: k,
+				Value: v,
+			})
+		}
+	}
+
 	template := &batchv1.Job{
 		TypeMeta: metav1.TypeMeta{
 			Kind: "Job",
@@ -78,6 +90,7 @@ func (d *KubernetesWorkerInterface) genJobManifest(wid string, conf *api.WorkerC
 							Name:            containerName,
 							Command:         conf.Command,
 							ImagePullPolicy: apiv1.PullAlways,
+							Env:             envVars,
 						},
 					},
 					RestartPolicy: apiv1.RestartPolicyNever,

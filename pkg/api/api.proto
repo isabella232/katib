@@ -267,6 +267,7 @@ message WorkerConfig {
     repeated Toleration tolerations = 10;
     map<string, string> labels = 11;
     string container_suffix = 12;
+    map<string, string> env_vars = 13;
 }
 
 message Worker {
