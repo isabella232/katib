@@ -27,10 +27,10 @@ spec:
         ports:
         - name: webapi
           containerPort: 3000
-#        resources:
-#          requests:
-#            cpu: 500m
-#            memory: 500M
-#          limits:
-#            cpu: 500m
-#            memory: 500M
+        resources:
+          requests:
+            cpu: "2"
+            memory: "4Gi"
+          limits:
+            cpu: "2"
+            memory: "4Gi"
